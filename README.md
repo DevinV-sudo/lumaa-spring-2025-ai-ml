@@ -1,91 +1,126 @@
-# AI/Machine Learning Intern Challenge: Simple Content-Based Recommendation
+# Content Based Recommendation-System for Movies  
+## Lumaa Spring Internship Challenge
+#### by: Devin Vliet
 
-**Deadline**: Sunday, Feb 23th 11:59 pm PST
 
+
+## Overview  
+
+This content-based recommendation system suggests five movies based on a user's input, by leveraging movie overviews and genres,
+to determine the most applicable movies based on the context gathered from the user's input. Given a user's input, the system
+embeds the input into a 768-dimensional vector using the "all-mpnet-base-v2" model from Hugging Face's Sentence Transformers library.
+The system compares this input vector in a two fold manner, first to the centroids of clusters generated over the embeddings of the
+movies' genres, and secondly to the embeddings of each movie associated with the genre's within each cluster. The cluster whose centroid
+has the greatest "semantic similarity" with the user's input is selected, and k-genres from that cluster are selected respectively.
+Then the embedding of the overview of every movie that belongs to each of those k-genres, is compared to the user's input and the
+model selects k most-similar movies as it's output. These movies are then re-ranked by their similarity scores and returned to the user. 
+
+
+#### Dataset 
+This recommendation system uses a subset of Kaggle's "The Movies Dataset", which contains metadata for
+over 45,000 movies listed in the "Full MovieLens Dataset". In order to keep the datasets dimensions in line with 
+the expectations for this challenge, the data was prepared by first dropping any missing rows, and repeatedly
+truncating the dataset by a couple of features, here are the steps should you want to replicate the dataset yourself:  
+
+- The top 1,000 entries ranked by popularity were selected
+- The top 750 entries ranked by total revenue were selected
+- The top 650 entries ranked by the average viewer score were selected
+- The remaining 650 entries were randomly downsampled to 500 entries.
+
+After downsizing the dataset sufficeintly, all features were dropped aside from "title", "overview", "vote average" and "genre".
+The genre feature was originally formatted as a list of dictionaries, I unpacked the genre feature into a single string of each
+genre seperated by spaces. I have attached a link to the original dataset below.  
+
+- Link: https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset
+
+#### Embedding Model
+The embedding model used for this system is "all-mpnet-base-v2" model from Hugging Face's Sentence Transformers library, additionally  
+the util.community_detection and cos_sim methods are used for the clustering of the genre embeddings.
+
+- Link: https://huggingface.co/sentence-transformers/all-mpnet-base-v2
+
+#### Displaying Outputs
+Personally I feel as if interfaces that are located in a terminal are not very classy, and leave something to be desired. Since the goal 
+of this challenge was to build a simple recommender system, the user interface options are fairly limited. I wanted something I could be proud of
+so I opted to use pythons 'Rich' framework. Rich allows you to present terminal outputs in interesting and fun ways using their "Console" methods.
+I have attached a link to the docs:  
+- Link: https://rich.readthedocs.io/en/stable/introduction.html 
+
+
+## Setup & Instructions
+
+To run this system yourself, you need a virtual environment running Python 3.12.4 and the following modules installed:  
+- numpy
+- pandas
+- torch
+- sentence_transformers
+- rich
+
+### Step 1: Clone the Forked Repository
+First clone the forked repository to your local machine:  
+``` bash
+git clone https://github.com/DevinV-sudo/lumaa-spring-2025-ai-ml.git
+cd lumaa-spring-2025-ai-ml
+```
+
+### Step 2: Create Virtual Environment
+To create a virtual environment to run the system in enter the following:  
+
+```bash
+# Create a virtual environment
+python3.12 -m venv myenv
+
+# Activate the virtual environment
+source myenv/bin/activate  # macOS/Linux
+myenv\Scripts\activate     # Windows
+```
+
+### Step 3: Install Dependencies
+Now that the prior steps are completed, simply install the required modules with the following: 
+
+```bash
+# Install requirements
+pip install -r requirements.txt
+```  
+
+### Step 4: Run the Model!
+Once you have a virtual environment up and running that meets the prior specifications, all you need to do is enter the following command:
+
+```bash
+python model.py run
+```
+
+If you have completed the previous steps successfully, you should see the following outputs in your terminal:
+![Local Image](images/Screenshot%202025-02-21%20at%207.03.12%20PM.png)  
+
+The first time you run the code, it may take a minute before the above response appears, this is simply due to the fact that the model must
+be loaded from hugging face, after the first time it will load much quicker. Additionally the "Embeddings Loaded" response simply means that the
+two JSON files which contain the movie-metadata embeddings are already present in the 'data' folder, if they are not the model will load them for you.
+
+After the model is loaded the foloowing will appear:  
+![Local Image](images/Screenshot%202025-02-21%20at%207.06.35%20PM.png)  
+
+All you need to do now is type in a description of the sort of movie you would like to see!  
+Heres an example:  
+
+![Local Image](images/Screenshot%202025-02-21%20at%207.08.50%20PM.png)  
+
+If you would like to enter another prompt simply type: 'y' if you are done using the model simply type: 'n'.
+
+## Tutorial & Example Usage:
+
+Here is a simple tutorial detailing the outputs of the model and how it works as well as potenial short comings:
+
+[Watch the video](videos/Tutorial.mp4)
+
+
+### Salary Expectations
 ---
+I thoroughly enjoyed the internship challenge, and I hope you enjoy my response!
+As far as the monthly salary expectations, I wasn’t sure where I was expected to state them. I personally believe that as a senior studying data science, math and computer science, experience is incredibly important. I have spent some significant time developing my own AI integrations and systems, as well as studying deep learning theory at university and frankly there is no aspect of data science I love more.
+ 
+This internship would allow me to continue to grow in the field as well as work on problems I am already attempting to solve in a space that I am passionate about. I think a fair monthly salary considering all of those things, would be somewhere in the $2,000-2,700 range, but I cannot emphasize enough that the opportunity to dig my teeth into more problems in this domain is what excites me about this potential role, and should I be selected I am more than happy to negotiate!
+ 
+Thank you for considering me for the role, I hope to hear from you soon.
 
-## Overview
 
-Build a **content-based recommendation system** that, given a **short text description** of a user’s preferences, suggests **similar items** (e.g., movies) from a small dataset. This challenge should take about **3 hours**, so keep your solution **simple** yet **functional**.
-
-### Example Use Case
-
-- The user inputs:  
-  *"I love thrilling action movies set in space, with a comedic twist."*  
-- Your system processes this description (query) and compares it to a dataset of items (e.g., movies with their plot summaries or keywords).  
-- You then return the **top 3–5 “closest” matches** to the user.
-
----
-
-## Requirements
-
-1. **Dataset**  
-   - Use a **small** public dataset of items (e.g., a list of movies with plot summaries, or other textual descriptions).  
-   - Make sure the dataset is easy to handle (maybe 100–500 rows) so the solution remains quick to implement and run.  
-   - Include the dataset in your forked repository *or* provide instructions/link on how to download it.  
-
-2. **Approach**  
-   - **Content-Based**: At a minimum, use text similarity to recommend items.  
-     - For instance, you can transform both the user’s text input and each item’s description into TF-IDF vectors and compute **cosine similarity**.  
-   - Return the **top N** similar items (e.g., top 5).
-
-3. **Code Organization**  
-   - You may use a **Jupyter Notebook** or **Python scripts**.  
-   - Keep it **readable** and **modular** (e.g., one section for loading data, one for building vectors, one for computing similarity, etc.).  
-   - Briefly comment or docstring your key functions/sections.
-
-4. **Output**  
-   - When given an input description (e.g., `"I like action movies set in space"`), your system should print or return a list of recommended items (e.g., 3–5 titles).  
-   - Include the similarity score or rank if you’d like.
-
-5. **Summary & Instructions**  
-   - A short `README.md` that includes:
-     - **Dataset**: Where it’s from, any steps to load it.  
-     - **Setup**: Python version, virtual environment instructions, and how to install dependencies (`pip install -r requirements.txt`).  
-     - **Running**: How to run your code (e.g., `python recommend.py "Some user description"` or open your notebook in Jupyter).  
-     - **Results**: A brief example of your system’s output for a sample query.
-
----
-
-## Deliverables
-
-1. **Fork the Public Repository**  
-   - **Fork** this repo into your own GitHub account.
-
-2. **Implement Your Solution**  
-   - Load and preprocess your dataset (e.g., read CSV, handle text columns).  
-   - Convert text data to vectors (e.g., TF-IDF).  
-   - Implement a function to compute similarity between the user’s query and each item’s description.  
-   - Return the top matches.
-   - Salary expectation per month (Mandatory)
-
-3. **Short Video Demo**  
-   - In a `.md` file (e.g., `demo.md`) within your fork, paste a link to a **brief screen recording** (video link).  
-   - Demonstrate:
-     - How you run the recommendation code.  
-     - A sample query and the results.
-
-4. **Deadline**  
-   - Submit your fork by **Sunday, Feb 23th 11:59 pm PST**.
-
-> **Note**: This should be doable within ~3 hours. Keep it **straightforward**—you do **not** need advanced neural networks or complex pipelines. A simple TF-IDF + cosine similarity approach is sufficient.
-
----
-
-## Evaluation Criteria
-
-1. **Functionality**  
-   - Does your code run without errors?  
-   - When given an input query, does it successfully output relevant items?
-
-2. **Code Quality**  
-   - Clear, commented code (where it counts).  
-   - Logical steps (load data → transform → recommend).
-
-3. **Clarity**  
-   - Is your `README.md` straightforward about setup, how to run, and what to expect?
-
-4. **ML/Recommendation Understanding**  
-   - Basic implementation of a content-based recommendation approach (vectorization, similarity measure).
-
-**We look forward to seeing your solution!** Good luck!
