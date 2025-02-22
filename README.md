@@ -111,7 +111,7 @@ If you would like to enter another prompt simply type: 'y' if you are done using
 
 Here is a simple tutorial detailing the outputs of the model and how it works as well as potenial short comings:
 
-[Watch the video](videos/Tutorial.mp4)
+[![Watch the Demo]](https://youtu.be/gOU8CCw6_GQ)
 
 
 ### Salary Expectations
